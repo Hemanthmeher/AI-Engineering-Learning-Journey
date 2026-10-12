@@ -1,0 +1,12 @@
+
+* **Core Concept:** Why AI needs vector databases as an external memory layer to handle private documents and overcome LLM context window limits.
+* **My Notes & Learnings:**
+  * **Why LLMs Need Memory:** Standard Large Language Models have static training data and cannot natively know private or real-time files (PDFs, local notes) unless provided in the context window.
+  * **Embeddings & Vectors:** Raw text cannot be computed mathematically, so embedding models convert words and sentences into high-dimensional numerical arrays (vectors) that capture semantic meaning.
+  * **Traditional Databases vs. Vector Databases:** 
+    * *Traditional DBs (SQL/NoSQL):* Best for exact keyword matches and structured rows/columns.
+    * *Vector Databases:* Designed for similarity (semantic) searches where concepts match even if exact words differ.
+  * **Vector Search Workflow:** 
+    1. User query is converted into a vector via an embedding model.
+    2. The database uses similarity metrics (Cosine Similarity, Euclidean Distance) to find the closest matching vectors.
+    3. The retrieved text chunks are fed into the LLM context to generate accurate, grounded responses.
