@@ -1,3 +1,4 @@
+# Section 8: Build AI Memory Systems (Vector Databases)
 
 * **Core Concept:** Why AI needs vector databases as an external memory layer to handle private documents and overcome LLM context window limits.
 * **My Notes & Learnings:**
@@ -16,4 +17,11 @@
   * **The 3 Core Phases of RAG:**
     1. *Ingestion:* Loading raw documents, splitting/chunking them into smaller pieces, converting them into vector embeddings, and storing them in a vector database.
     2. *Retrieval:* When a user asks a question, the query is embedded and matched against the vector database using similarity metrics to retrieve the most relevant text chunks.
+
     3. *Generation:* The retrieved context chunks and the user's original query are combined into a prompt and fed to the LLM to generate a grounded, accurate answer.
+    
+* **Focus Area:** Understanding vector indexing algorithms (like IVF and HNSW) and the trade-off between search speed and accuracy in vector databases.
+* **My Notes & Learnings:**
+  * **Why We Need Indices:** Exact (brute-force) nearest neighbor search is too slow when dealing with millions of high-dimensional vectors. Indexes organize vectors to make searches blazing fast.
+  * **IVF (Inverted File Index):** Groups vectors into clusters. During search, it only looks inside the closest cluster, saving memory and time, but can occasionally miss extreme edge-case matches.
+  * **HNSW (Hierarchical Navigable Small World):** Builds a multi-layer graph network (like a city expressway). Provides extremely fast and high accuracy, but consumes more memory (RAM) to store graph connections.
