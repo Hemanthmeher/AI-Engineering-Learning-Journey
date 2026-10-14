@@ -25,3 +25,36 @@
   * **Why We Need Indices:** Exact (brute-force) nearest neighbor search is too slow when dealing with millions of high-dimensional vectors. Indexes organize vectors to make searches blazing fast.
   * **IVF (Inverted File Index):** Groups vectors into clusters. During search, it only looks inside the closest cluster, saving memory and time, but can occasionally miss extreme edge-case matches.
   * **HNSW (Hierarchical Navigable Small World):** Builds a multi-layer graph network (like a city expressway). Provides extremely fast and high accuracy, but consumes more memory (RAM) to store graph connections.
+
+
+* **Focus Area:** Building a local vector search engine using Facebook AI Similarity Search (FAISS) and LangChain.
+* **My Notes & Learnings:**
+  * **FAISS Internals:** FAISS is a library that handles high-dimensional vector math and fast nearest neighbor searches using flat indexes (`IndexFlatIP`).
+  * **The Role of Docstore:** Because vector databases only store raw numerical arrays (numbers), LangChain combines FAISS with an `InMemoryDocstore` and a mapping dictionary (`index_to_docstore_id`) to bridge vector IDs back to original text documents.
+  * **Practical Implementation:** Instead of manual setup, LangChain's single-line wrapper (`FAISS.from_documents`) automatically handles embeddings, vector indexing, and docstore mapping seamlessly.
+
+  from langchain_core.documents import Document
+from langchain_text_splitters import CharacterTextSplitter
+from langchain_community.embeddings import OllamaEmbeddings
+from langchain_community.vectorstores import FAISS
+
+docs = [
+    Document(page_content="Stock market dropped 400 points on the recession worries today."),
+    Document(page_content="Artificial intelligence is transforming software engineering rapidly."),
+]
+
+text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+all_docs = text_splitter.split_documents(docs)
+
+embeddings = OllamaEmbeddings(model="llama3.2")
+
+vector_store = FAISS.from_documents(all_docs, embedding=embeddings)
+
+query = "How much did the stock market fall?"
+results = vector_store.similarity_search(query, k=1)
+
+for res in results:
+    print(res.page_content)
+
+
+
