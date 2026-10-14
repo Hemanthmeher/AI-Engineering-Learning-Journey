@@ -10,3 +10,10 @@
     1. User query is converted into a vector via an embedding model.
     2. The database uses similarity metrics (Cosine Similarity, Euclidean Distance) to find the closest matching vectors.
     3. The retrieved text chunks are fed into the LLM context to generate accurate, grounded responses.
+
+* **Focus Area:** End-to-end workflow of a Retrieval-Augmented Generation (RAG) system from query to generated response.
+* **My Notes & Learnings:**
+  * **The 3 Core Phases of RAG:**
+    1. *Ingestion:* Loading raw documents, splitting/chunking them into smaller pieces, converting them into vector embeddings, and storing them in a vector database.
+    2. *Retrieval:* When a user asks a question, the query is embedded and matched against the vector database using similarity metrics to retrieve the most relevant text chunks.
+    3. *Generation:* The retrieved context chunks and the user's original query are combined into a prompt and fed to the LLM to generate a grounded, accurate answer.
