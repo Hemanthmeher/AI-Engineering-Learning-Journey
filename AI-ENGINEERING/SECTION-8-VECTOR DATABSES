@@ -58,3 +58,55 @@ for res in results:
 
 
 
+* **Focus Area:** Transitioning from local vector storage (FAISS) to a fully managed cloud-based vector database using Pinecone.
+* **My Notes & Learnings:**
+  * **Why Cloud Vector DBs:** While FAISS is great for local testing and personal machine usage, production enterprise applications require scalable, highly available cloud vector databases like Pinecone.
+  * **Serverless Indexes & Spec:** Using serverless deployment specifications (`ServerlessSpec`) to provision cloud vector indexes dynamically without managing dedicated server infrastructure.
+  * **Pinecone & LangChain Integration:** Connecting the Pinecone client with LangChain wrapper to upload document embeddings and perform cloud similarity searches with metadata filtering.
+
+import os
+from pinecone import Pinecone, ServerlessSpec
+from langchain_community.embeddings import OllamaEmbeddings
+from langchain_pinecone import PineconeVectorStore
+from langchain_core.documents import Document
+
+os.environ["PINECONE_API_KEY"] = "your-pinecone-api-key-here"
+
+pc = Pinecone()
+
+index_name = "vector-store-youtube"
+
+if not pc.has_index(index_name):
+    pc.create_index(
+        name=index_name,
+        dimension=3072,
+        metric="cosine",
+        spec=ServerlessSpec(
+            cloud="aws",
+            region="us-east-1"
+        )
+    )
+
+embeddings = OllamaEmbeddings(model="llama3.2")
+
+docs = [
+    Document(page_content="Stock market dropped 400 points on the recession worries today.", metadata={"category": "finance"}),
+    Document(page_content="Odoo hackathon in Gujarat focused on backend development using FastAPI.", metadata={"category": "tech"}),
+]
+
+vector_store = PineconeVectorStore.from_documents(
+    documents=docs,
+    embedding=embeddings,
+    index_name=index_name
+)
+
+query = "Tell me about market crash"
+results = vector_store.similarity_search(
+    query, 
+    k=1, 
+    filter={"category": "finance"}
+)
+
+for res in results:
+    print(res.page_content)
+    print(res.metadata)
