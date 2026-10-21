@@ -32,3 +32,56 @@ agent_executor = create_react_agent(llm, tools)
 response = agent_executor.invoke({"messages": [("user", "Tell me about Albert Einstein")]})
 print(response["messages"][-1].content)
 
+---
+
+## 5. Building Custom ReAct Agents with Multiple Custom Tools
+When you want to give an LLM multiple capabilities (like mathematical calculations and string manipulation), you can write multiple custom tools using the `@tool` decorator and pass them together into LangGraph's `create_react_agent`.
+
+### Complete Code Example: Multi-Tool Agent
+```python
+from langchain_groq import ChatGroq
+from langchain_core.tools import tool
+from langgraph.prebuilt import create_react_agent
+
+# 1. Custom Calculator Tool
+@tool
+def calculator(question: str) -> str:
+    """
+    A calculator tool that can perform mathematical calculations.
+    Args:
+        question (str): The mathematical question to be answered.
+    Returns:
+        str: The answer to the mathematical question.
+    """
+    try:
+        result = eval(question)
+        return str(result)
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+# 2. Custom String Reversal Tool
+@tool
+def reverseString(input_string: str) -> str:
+    """
+    A tool that reverses the input string.
+    Args:
+        input_string (str): The string to be reversed.
+    Returns:
+        str: The reversed string.
+    """
+    return input_string[::-1]
+
+# 3. Initialize LLM and Agent with Multiple Tools
+llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0)
+agent = create_react_agent(model=llm, tools=[calculator, reverseString])
+
+# 4. Interactive Chat Loop
+print("Jarvis Agent Ready! Type 'exit' to quit.")
+while True:
+    question = input("You: ").strip()
+    if question.lower() in ["exit", "quit"]:
+        print("Exiting the chat. Goodbye!")
+        break
+    
+    response = agent.invoke({"messages": [("user", question)]})
+    print(f"Jarvis: {response['messages'][-1].content}\n")
