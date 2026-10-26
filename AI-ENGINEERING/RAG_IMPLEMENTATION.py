@@ -29,7 +29,7 @@ split_docs=text_splitter.split_documents([doc])
 # print(f"[+] Generated {len(chunks)} chunks successfully!\n")
 
 # Embeddings
-embeddings = OllamaEmbeddings(model="nomic-embed-text", base_url="http://localhost:11434")
+embeddings = OllamaEmbeddings(model="nomic-embed-text ", base_url="http://localhost:11434")
 print("[-] Initializing Ollama Embeddings & FAISS Vector Store...")
 # Vector Store
 vectorstore=FAISS.from_documents(split_docs, embeddings)
