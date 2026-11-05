@@ -93,3 +93,75 @@ try:
     invalid_user = UserProfile(username="Meher", age="not-an-age")
 except ValidationError as e:
     print("Caught expected validation error:\n", e)
+
+
+
+## Optional Fields, Default Values & Type Coercion in Pydantic
+
+### 1. Mandatory vs. Optional Fields
+
+In Pydantic models, we define fields using standard Python type hints. If you don't assign a default value to a field, Pydantic treats and enforces it as a **Mandatory (Required)** field by default.
+
+```python
+from typing import Optional
+from pydantic import BaseModel
+
+class User(BaseModel):
+    name: str                   # Required field
+    age: int                    # Required field
+    phone: Optional[str] = None # Optional field with default None
+    is_active: Optional[bool] = True # Optional field with default True
+
+
+Section 21 & 22: Lists, Tuples, Field Constraints & Safe Defaults in Pydantic
+1. Field Constraints & Rules
+Instead of just defining basic data types (str, int), we use Field from Pydantic to add extra validation rules, limits, and descriptions to our model attributes.
+
+When to use Field:
+
+To enforce numeric boundaries (ge = greater than or equal, le = less than or equal).
+
+To set length constraints for strings or collections (min_length, max_length).
+
+To explicitly mark a field as required using ... (Ellipsis).
+
+To add metadata like descriptions (description="...").
+
+Python
+from pydantic import BaseModel, Field
+
+
+class User(BaseModel):
+  name: str = Field(..., min_length=3, description="Full name of the user")
+  age: int = Field(..., ge=18, le=100)
+2. List (list) vs. Tuple (tuple) in Pydantic
+Feature	list (list[str])	tuple (tuple[float, float])
+Size / Length	Dynamic (Can grow/shrink; limits can be set using min_length/max_length)	Fixed (Strictly fixed number of elements and positions)
+Data Types	Homogeneous (All elements must belong to the exact same type)	Heterogeneous (Elements can have different types per position)
+Use Case	Tags, course lists, shopping cart items, logs	GPS coordinates (lat, lon), fixed DB records, pairs
+3. default vs. default_factory (Avoiding the Mutable Default Trap)
+default (Static Values):
+
+Used for primitive, immutable data types like strings, numbers, and booleans.
+
+Example: role: str = Field(default="Guest")
+
+default_factory (Dynamic / Mutable Values):
+
+Used for mutable objects like lists ([]), dictionaries ({}), or dynamic callables like timestamps (datetime.now).
+
+Why it's crucial: In standard Python, defining a mutable default like courses: list = [] causes a major bug where the exact same list instance is shared across all object instances. Using default_factory=list instructs Pydantic to generate a brand new, clean, empty list for every single new object created!
+
+Python
+from datetime import datetime
+from pydantic import BaseModel, Field
+
+
+class Student(BaseModel):
+  name: str
+  courses: list[str] = Field(
+      default_factory=list
+  )  # Safe mutable default list
+  joined_at: datetime = Field(
+      default_factory=datetime.now
+  )  # Dynamic timestamp
