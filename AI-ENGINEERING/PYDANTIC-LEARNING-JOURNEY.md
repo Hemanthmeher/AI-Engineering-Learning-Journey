@@ -47,3 +47,49 @@ print(user1.model_dump())
 ### Why Pydantic is Essential in AI / Agentic Systems
 
 Large Language Models (LLMs) naturally generate unstructured plain text (strings). However, downstream components like databases, APIs, and tool execution functions require strictly structured, typed data. Pydantic serves as the reliable bridge that validates and parses LLM outputs and tool arguments safely before they hit your core application logic.
+
+
+## Section 20: When Pydantic Says ‘No’: Understanding Validation Errors
+
+In this section, we explored how Pydantic handles invalid inputs, how it performs automatic type coercion, and how to properly debug and interpret validation errors.
+
+### Key Concepts Covered
+1. **Automatic Type Coercion (Type Conversion):**
+   * Pydantic doesn't just check data types; it actively tries to convert input data into the defined type if possible.
+   * *Example:* Passing a string like `"123"` to an integer field (`int`) will automatically be coerced and converted into the integer `123`.
+
+2. **Understanding Validation Errors (`ValidationError`):**
+   * When Pydantic cannot coerce or validate the input data against the schema, it raises a detailed `ValidationError`.
+   * The error message provides structured information pinpointing:
+     * **Loc (Location):** The exact field or key where the validation failed.
+     * **Msg (Message):** The reason why the validation failed (e.g., "field required", "value is not a valid integer").
+     * **Type:** The underlying validation error type code.
+
+3. **Breaking Pydantic on Purpose:**
+   * Tested edge cases by passing invalid data types, missing required fields, and malformed inputs to see how Pydantic behaves under pressure.
+   * Learned how to catch `ValidationError` using standard `try-except` blocks to handle bad user inputs gracefully in real-world AI applications.
+
+---
+
+### Code Snippet / Example
+
+```python
+from pydantic import BaseModel, ValidationError
+
+class UserProfile(BaseModel):
+    username: str
+    age: int
+    is_active: bool = True
+
+# Successful validation with type coercion (string "25" converted to int 25)
+try:
+    user = UserProfile(username="Hemanth", age="25")
+    print(user)
+except ValidationError as e:
+    print(e)
+
+# Triggering a Validation Error on purpose
+try:
+    invalid_user = UserProfile(username="Meher", age="not-an-age")
+except ValidationError as e:
+    print("Caught expected validation error:\n", e)
