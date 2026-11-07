@@ -80,3 +80,4 @@ To serialize your nested models back into dictionaries or JSON strings for datab
 ```python
 user_dict = user.model_dump()
 print(user_dict)
+
