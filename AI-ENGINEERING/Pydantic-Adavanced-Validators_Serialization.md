@@ -96,3 +96,37 @@ class SecureUser(BaseModel):
 
     def get_password(self):
         return self._password
+
+
+from pydantic import BaseModel, Field, model_validator
+
+## Prastice for ModelValidation in Pydantic 
+class UserSignup(BaseModel):
+    username: str
+    password: str = Field(..., min_length=6)
+    confirm_password: str
+
+    @model_validator(mode="after")
+    def check_passwords_match(self) -> "UserSignup":
+        if self.password != self.confirm_password:
+            raise ValueError("Password and Confirm Password do not match!")
+        return self
+
+
+if __name__ == "__main__":
+    try:
+        user = UserSignup(
+            username="hemanth",
+            password="secretpassword",
+            confirm_password="secretpassword",
+        )
+        print("Success:", user.model_dump())
+
+        invalid_user = UserSignup(
+            username="hemanth",
+            password="password123",
+            confirm_password="wrongpassword",
+        )
+    except ValueError as e:
+        print("\nValidation Error Caught:")
+        print(e)
