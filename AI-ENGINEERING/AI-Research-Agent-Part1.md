@@ -96,9 +96,18 @@ structured_llm = llm.with_structured_output(SearchQueries)
 
 def generate_queries(state):
     topic = state["topic"]
-    prompt = f"Generate 3 smart search queries for researching this topic: {topic}"
-    response = structured_llm.invoke(prompt)
-    return {"queries": response.queries}  
+    prompt = f"""Generate 3 smart search queries for researching this topic: {topic}
+
+Return ONLY valid JSON in this exact format:
+{{"queries": ["query 1", "query 2", "query 3"]}}"""
+
+    raw = llm.invoke(prompt)
+    content = raw.content.strip()
+    if content.startswith("```"):
+        content = content.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+    data = json.loads(content)
+    queries = [str(q) for q in data.get("queries", [])]
+    return {"queries": queries}
 
 def search_node(state):
     queries = state["queries"]
